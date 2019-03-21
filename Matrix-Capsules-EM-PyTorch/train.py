@@ -46,16 +46,20 @@ def get_setting(args):
     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
     path = os.path.join(args.data_folder, args.dataset)
 
+   # normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
+    #                                     std=[x/255.0 for x in [63.0, 62.1, 66.7]])    
     transform_train = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
+                transforms.Grayscale(num_output_channels=1),
+                transforms.RandomCrop(28, padding='valid'),
                 transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                normalize,
+                transforms.ToTensor()
+               
                 ])
 
     transform_test = transforms.Compose([
-            transforms.ToTensor(),
-            normalize
+            transforms.Grayscale(num_output_channels=1),
+            transforms.ToTensor()
+          
             ])
 
     if args.dataset == 'mnist':
@@ -95,13 +99,22 @@ def get_setting(args):
             batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
     elif args.dataset == 'cifar10':
-            train_loader = torch.utils.data.DataLoader(
-                datasets.CIFAR10(path, train=True, download=True, transform=transform_train),
-                batch_size=args.batch_size, shuffle=True, **kwargs)
-            test_loader = torch.utils.data.DataLoader(
-                datasets.CIFAR10(path, train=False, transform=transform_test),
-                batch_size=args.test_batch_size, shuffle=True, **kwargs)
-            num_class = 10
+        num_class = 10   
+        train_loader = torch.utils.data.DataLoader(
+            datasets.CIFAR10(path, train=True, download=True, 
+                             transform=transforms.Compose([
+                                 transforms.Grayscale(num_output_channels=1),
+                                 transforms.RandomCrop(32),
+                                 transforms.ToTensor()
+                             ])),
+            batch_size=args.batch_size, shuffle=True, **kwargs)
+        test_loader = torch.utils.data.DataLoader(
+            datasets.CIFAR10(path, train=False, 
+                             transform=transforms.Compose([
+                                 transforms.Grayscale(num_output_channels=1),
+                                 transforms.ToTensor()
+                             ])),
+            batch_size=args.test_batch_size, shuffle=True, **kwargs)
     else:
         raise NameError('Undefined dataset {}'.format(args.dataset))
     return num_class, train_loader, test_loader
@@ -224,7 +237,7 @@ def main():
     num_class, train_loader, test_loader = get_setting(args)
 
     # model
-    A, B, C, D = 32, 8, 16, 32
+    A, B, C, D = 16, 4, 4, 4
     # A, B, C, D = 32, 32, 32, 32
     model = capsules(A=A, B=B, C=C, D=D, E=10,
                      iters=args.em_iters).to(device)
