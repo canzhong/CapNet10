@@ -374,21 +374,21 @@ class CapsNet(nn.Module):
     def __init__(self, A=32, B=32, C=32, D=32, E=10, K=3, P=4, iters=3):
         super(CapsNet, self).__init__()
         X = 16
-        Y = 16
+        Y = 32
         #resnext
         #A = 2, B = 4, c = 8, d = 16
         #A = 2, B = 4, C = 6, D = 10
 
         #Identity mapping shortcut for residual. Computationally cheaper with 1x1 convolutions
 
-        self.resnextb1 = ResNextB(in_channels=1, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb2 = ResNextB(in_channels=Y, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb3 = ResNextB(in_channels=Y, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb4 = ResNextB(in_channels=Y, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb5 = ResNextB(in_channels=Y, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb6 = ResNextB(in_channels=Y, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb7 = ResNextB(in_channels=Y, out_channels=Y, stride=1, cardinality=2, base_width=16, widen_factor=2)
-        self.resnextb8 = ResNextB(in_channels=Y, out_channels=A, stride=1, cardinality=2, base_width=16, widen_factor=2)
+        self.resnextb1 = ResNextB(in_channels=1, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+        self.resnextb2 = ResNextB(in_channels=X, out_channels=Y, stride=1, cardinality=1, base_width=16, widen_factor=2)
+        self.resnextb3 = ResNextB(in_channels=Y, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+        self.resnextb4 = ResNextB(in_channels=X, out_channels=Y, stride=1, cardinality=1, base_width=16, widen_factor=2)
+        self.resnextb5 = ResNextB(in_channels=Y, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+        self.resnextb6 = ResNextB(in_channels=X, out_channels=Y, stride=1, cardinality=1, base_width=16, widen_factor=2)
+        self.resnextb7 = ResNextB(in_channels=Y, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+        self.resnextb8 = ResNextB(in_channels=X, out_channels=A, stride=1, cardinality=1, base_width=16, widen_factor=2)
 #        self.resnextb9 = ResNextB(in_channels=Y, out_channels=A, stride=1, cardinality=1, base_width=16, widen_factor=2)
         self.primary_caps = PrimaryCaps(A, B, 1, P, stride=1)
         self.conv_caps1 = ConvCaps(B, C, K, P, stride=2, iters=iters)
