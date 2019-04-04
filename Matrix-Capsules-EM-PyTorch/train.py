@@ -4,6 +4,7 @@ import os
 import time
 import torch
 import torch.nn as nn
+import numpy as np
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
@@ -47,19 +48,19 @@ def get_setting(args):
     path = os.path.join(args.data_folder, args.dataset)
 
    # normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
-    #                                     std=[x/255.0 for x in [63.0, 62.1, 66.7]])    
+    #                                     std=[x/255.0 for x in [63.0, 62.1, 66.7]])
     transform_train = transforms.Compose([
                 transforms.Grayscale(num_output_channels=1),
                 transforms.RandomCrop(28, padding='valid'),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor()
-               
+
                 ])
 
     transform_test = transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor()
-          
+
             ])
 
     if args.dataset == 'mnist':
@@ -99,9 +100,9 @@ def get_setting(args):
             batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
     elif args.dataset == 'cifar10':
-        num_class = 10   
+        num_class = 10
         train_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10(path, train=True, download=True, 
+            datasets.CIFAR10(path, train=True, download=True,
                              transform=transforms.Compose([
                                  transforms.Grayscale(num_output_channels=1),
                                  transforms.RandomCrop(32),
@@ -109,7 +110,7 @@ def get_setting(args):
                              ])),
             batch_size=args.batch_size, shuffle=True, **kwargs)
         test_loader = torch.utils.data.DataLoader(
-            datasets.CIFAR10(path, train=False, 
+            datasets.CIFAR10(path, train=False,
                              transform=transforms.Compose([
                                  transforms.Grayscale(num_output_channels=1),
                                  transforms.ToTensor()
@@ -242,6 +243,7 @@ def main():
     model = capsules(A=A, B=B, C=C, D=D, E=10,
                      iters=args.em_iters).to(device)
 
+    print(sum(p.numel() for p in model.parameters() if p.requires_grad))
     criterion = SpreadLoss(num_class=num_class, m_min=0.2, m_max=0.9)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=1)
