@@ -4,16 +4,27 @@ A Pytorch implementation variation of [Matrix Capsules with EM Routing](https://
 Architecture :
 
 ResNextB(in_channels=1, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=X, out_channels=Y, stride=1, cardinality=1, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=Y, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=X, out_channels=Y, stride=1, cardinality=1, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=Y, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=X, out_channels=Y, stride=1, cardinality=1, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=Y, out_channels=X, stride=1, cardinality=2, base_width=16, widen_factor=2)
+
 ResNextB(in_channels=X, out_channels=A, stride=1, cardinality=1, base_width=16, widen_factor=2)
+
 PrimaryCaps(A, B, 1, P, stride=1)
+
 ConvCaps(B, C, K, P, stride=2, iters=iters)
+
 ConvCaps(C, D, K, P, stride=1, iters=iters)
+
 ConvCaps(D, E, 1, P, stride=1, iters=iters, coor_add=True, w_shared=True)
 
 X = 16, Y = 32, A=B=C=D = 16, D = 10
